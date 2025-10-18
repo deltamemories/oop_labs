@@ -63,6 +63,18 @@ class Angle {
 		return this.getNormalizedAngleInRadians() <= other.getNormalizedAngleInRadians();
 	}
 
+	public getFloat() {
+		return this._radians;
+	}
+
+	public getInt() {
+		return Math.trunc(this._radians);
+	}
+
+	public getString() {
+		return this._radians.toString()
+	}
+
 
 }
 
@@ -96,3 +108,7 @@ console.log(a1.isLessThan(a2))
 
 console.log(a1.isGreaterThanOrEqual(a2))
 console.log(a1.isLessThanOrEqual(a2))
+
+console.log(a1.getFloat())
+console.log(a1.getInt())
+console.log(a1.getString())
