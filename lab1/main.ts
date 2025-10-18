@@ -75,6 +75,14 @@ class Angle {
 		return this._radians.toString()
 	}
 
+	public toString() {
+		return `${this._radians} radians`;
+	}
+
+	public representation() {
+		return `${this._radians} radians; ${this.degrees}°`;
+	}
+
 
 }
 
@@ -112,3 +120,6 @@ console.log(a1.isLessThanOrEqual(a2))
 console.log(a1.getFloat())
 console.log(a1.getInt())
 console.log(a1.getString())
+
+console.log(a1.toString())
+console.log(a1.representation())
