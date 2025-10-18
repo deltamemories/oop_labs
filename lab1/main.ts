@@ -28,6 +28,21 @@ class Angle {
 		}
 		return normalizedAngleInRadians
 	}
+
+	public get radians() {
+		return this._radians
+	}
+	public set angleRad(radians: number) {
+		this._radians = radians;
+	}
+	public get degrees() {
+		return this._radians / PI * 180
+	}
+	public set angleDeg(degrees: number) {
+		this._radians = degrees * PI / 180
+	}
+
+
 }
 
 const a1 = Angle.fromDegrees(450)
@@ -35,5 +50,15 @@ const a2 = Angle.fromRadians(PI/6)
 
 console.log(a1)
 console.log(a2)
+
+console.log(a1.radians)
+console.log(a1.degrees)
+
 console.log(a1.getNormalizedAngleInRadians())
 console.log(a2.getNormalizedAngleInRadians())
+
+a1.angleRad = 3*PI
+a2.angleDeg = 45
+
+console.log(a1.radians)
+console.log(a2.degrees)
