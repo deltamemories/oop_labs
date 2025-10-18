@@ -43,6 +43,27 @@ class Angle {
 	}
 
 
+	public isEquals(other: Angle) {
+		return this.getNormalizedAngleInRadians() === other.getNormalizedAngleInRadians();
+	}
+
+	public isGreaterThan(other: Angle) {
+		return this.getNormalizedAngleInRadians() > other.getNormalizedAngleInRadians();
+	}
+
+	public isLessThan(other: Angle) {
+		return this.getNormalizedAngleInRadians() < other.getNormalizedAngleInRadians();
+	}
+
+	public isGreaterThanOrEqual(other: Angle) {
+		return this.getNormalizedAngleInRadians() >= other.getNormalizedAngleInRadians();
+	}
+
+	public isLessThanOrEqual(other: Angle) {
+		return this.getNormalizedAngleInRadians() <= other.getNormalizedAngleInRadians();
+	}
+
+
 }
 
 const a1 = Angle.fromDegrees(450)
@@ -62,3 +83,16 @@ a2.angleDeg = 45
 
 console.log(a1.radians)
 console.log(a2.degrees)
+a1.angleRad = PI
+a2.angleRad = 1.5*PI
+
+console.log(a1.isEquals(a2))
+
+console.log(a1.degrees)
+console.log(a2.degrees)
+
+console.log(a1.isGreaterThan(a2))
+console.log(a1.isLessThan(a2))
+
+console.log(a1.isGreaterThanOrEqual(a2))
+console.log(a1.isLessThanOrEqual(a2))
