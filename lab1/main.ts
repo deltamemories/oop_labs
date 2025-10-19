@@ -4,6 +4,9 @@ class Angle {
 	private _radians: number;
 
 	private constructor(radians: number) {
+		if (Number.isNaN(radians)) {
+			throw new Error("radians is NaN");
+		}
 		this._radians = radians;
 	}
 
@@ -13,6 +16,11 @@ class Angle {
 
 	public static fromDegrees(degrees: number): Angle {
 		const radians = degrees * PI / 180
+		return new Angle(radians);
+	}
+
+	private static fromString(radiansStr: string): Angle {
+		const radians = Number(radiansStr);
 		return new Angle(radians);
 	}
 
@@ -83,6 +91,46 @@ class Angle {
 		return `${this._radians} radians; ${this.degrees}°`;
 	}
 
+	private applyOperation(
+		other: Angle | number | string,
+		operation: (a: number, b: number) => number
+	): Angle {
+		if (other instanceof Angle) {
+			return Angle.fromRadians(operation(this.radians, other.radians));
+		} else if (typeof other === 'number') {
+			return Angle.fromRadians(operation(this.radians, Angle.fromRadians(other).radians));
+		} else {
+			return Angle.fromRadians(operation(this.radians, Angle.fromString(other).radians));
+		}
+	}
+
+	public add(other: Angle): Angle;
+
+	public add(other: number): Angle;
+
+	public add(other: string): Angle;
+
+	public add(other: Angle | number | string): Angle {
+		return this.applyOperation(other, (a, b) => a + b);
+	}
+
+	public sub(other: Angle): Angle;
+
+	public sub(other: number): Angle;
+
+	public sub(other: string): Angle;
+
+	public sub(other: Angle | number | string): Angle {
+		return this.applyOperation(other, (a, b) => a - b);
+	}
+
+
+
+
+
+
+
+
 
 }
 
@@ -123,3 +171,14 @@ console.log(a1.getString())
 
 console.log(a1.toString())
 console.log(a1.representation())
+
+
+console.log(a1)
+console.log(a1.add(a2))
+console.log(a1.add(6))
+console.log(a1.add('12'))
+
+console.log(a1)
+console.log(a1.sub(a2))
+console.log(a1.sub(6))
+console.log(a1.sub('12'))
