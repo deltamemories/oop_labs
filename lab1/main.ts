@@ -123,16 +123,63 @@ class Angle {
 	public sub(other: Angle | number | string): Angle {
 		return this.applyOperation(other, (a, b) => a - b);
 	}
+}
 
+class AngleRange {
+	private _startRad: Angle;
+	private _endRad: Angle;
+	private _abs: number;
+	private _startInclusive: boolean;
+	private _endInclusive: boolean;
 
+	private constructor(
+		start: Angle, end: Angle,
+		startInclusive: boolean = false, endInclusive: boolean = false
+	) {
+		this._startRad = start;
+		this._endRad = end;
+		this._startInclusive = startInclusive;
+		this._endInclusive = endInclusive;
+		this._abs = Math.abs(this.start.radians - this.end.radians);
+	}
 
+	public static fromAngle(
+		start: Angle, end: Angle,
+		startInclusive: boolean = false, endInclusive: boolean = false
+	): AngleRange {
+		return new AngleRange(start, end, startInclusive, endInclusive);
+	}
 
+	public static fromNumber(
+		start: number, end: number,
+		startInclusive: boolean = false, endInclusive: boolean = false
+	): AngleRange {
+		return new AngleRange(Angle.fromRadians(start), Angle.fromRadians(end), startInclusive, endInclusive);
+	}
 
+	private get start() { // may be public
+		return this._startRad;
+	}
 
+	private get end() { // may be public
+		return this._endRad;
+	}
 
+	private get startInclusive() { // may be public
+		return this._startInclusive;
+	}
+
+	private get endInclusive() { // may be public
+		return this._endInclusive;
+	}
+
+	public get abs(): number {
+		return this._abs;
+	}
 
 
 }
+
 
 const a1 = Angle.fromDegrees(450)
 const a2 = Angle.fromRadians(PI/6)
@@ -182,3 +229,8 @@ console.log(a1)
 console.log(a1.sub(a2))
 console.log(a1.sub(6))
 console.log(a1.sub('12'))
+
+const r1 = AngleRange.fromNumber(0.5, 0.7)
+const r2 = AngleRange.fromNumber(0.5 + PI*2, 0.7 + PI*2)
+
+console.log(r1.abs)
