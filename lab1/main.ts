@@ -2,6 +2,7 @@ const PI = Math.PI;
 
 class Angle {
 	private _radians: number;
+    private readonly _tolerance: number = 0.000_001;
 
 	private constructor(radians: number) {
 		if (Number.isNaN(radians)) {
@@ -23,6 +24,10 @@ class Angle {
 		const radians = Number(radiansStr);
 		return new Angle(radians);
 	}
+
+    private accuracyPassed(radians: number): boolean {
+        return (Math.abs(radians) < this._tolerance)
+    }
 
 	public getNormalizedAngleInRadians() {
 		let normalizedAngleInRadians: number = this._radians % (PI*2);
@@ -52,7 +57,7 @@ class Angle {
 
 
 	public isEquals(other: Angle) {
-		return this.getNormalizedAngleInRadians() === other.getNormalizedAngleInRadians();
+		return this.accuracyPassed(this.getNormalizedAngleInRadians() - other.getNormalizedAngleInRadians());
 	}
 
 	public isGreaterThan(other: Angle) {
@@ -198,10 +203,10 @@ a2.angleDeg = 45
 
 console.log(a1.radians)
 console.log(a2.degrees)
-a1.angleRad = PI
-a2.angleRad = 1.5*PI
+a1.angleRad = 2*PI
+a2.angleRad = 20*PI
 
-console.log(a1.isEquals(a2))
+console.log("eq", a1.isEquals(a2))
 
 console.log(a1.degrees)
 console.log(a2.degrees)
