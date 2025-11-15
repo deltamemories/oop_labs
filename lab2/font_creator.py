@@ -17,7 +17,7 @@ def parse(img_path: str, letter_width: int, alphabet: list[str], letters_gap=1) 
 
 			for y in range(height):
 				letter_line: list[str] = []
-				for x in range(letter_width):
+				for x in range(width_shift, letter_width + width_shift):
 					pixel_rgba = img.getpixel((x, y))
 					if pixel_rgba == (0, 0, 0, 255):
 						letter_line.append('*')
