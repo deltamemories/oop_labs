@@ -78,6 +78,7 @@ class ConsolePrinter:
 			symbol: str | None = None
 	):
 		"""
+		:param text: text to print
 		:param position: (row, column)
 		:param color: ANSI color
 		:param symbol: one character
