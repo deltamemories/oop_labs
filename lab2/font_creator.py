@@ -31,8 +31,12 @@ def parse(img_path: str, letter_width: int, alphabet: list[str], letters_gap=1) 
 
 
 
-alphabet = list(string.ascii_lowercase)
-a = parse('5x7_letters.png', 5, alphabet, 1)
-print(a)
+alphabet_en = list(string.ascii_lowercase)
+a = parse('5x7_letters_en.png', 5, alphabet_en, 1)
+# print(a)
 print(json.dumps(a))
+
+alphabet_ru = list("абвгдеёжзийклмнопрстуфхцчшщъыьэюя")
+b = parse('5x7_letters_ru.png', 5, alphabet_ru, 1)
+print(json.dumps(b))
 
