@@ -40,3 +40,10 @@ alphabet_ru = list("абвгдеёжзийклмнопрстуфхцчшщъыь
 b = parse('5x7_letters_ru.png', 5, alphabet_ru, 1)
 print(json.dumps(b))
 
+digits = list("0123456789")
+c = parse('5x7_letters_digits.png', 5, digits, 1)
+print(json.dumps(c))
+
+symbols = list("!?#$%^&*()_+-÷/\\@")
+d = parse('5x7_letters_symbols.png', 5, symbols, 1)
+print(json.dumps(d))

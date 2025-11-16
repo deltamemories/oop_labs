@@ -1,7 +1,6 @@
 # lab2
 # example: ConsolePrinter.print_static(text: str, color: Color, position: Tuple[int, int], symbol: str)
 import json
-import string
 import time
 from enum import Enum
 
@@ -11,6 +10,8 @@ class ConsolePrinter:
 	_FONT_HEIGHT : int
 	_FONT_WIDTH : int
 	_FONT_LOADED: bool = False
+	_NEW_CANVAS: str = "\033[?1049h"
+	_BACK_TO_OLD_CANVAS: str = "\033[?1049l"
 
 	@staticmethod
 	def _load_font(file_path: str) -> None:
@@ -36,43 +37,74 @@ class ConsolePrinter:
 		self._color = color
 		self._position = position
 		self._symbol = symbol
+		self.new_canvas()
 
+	@staticmethod
+	def new_canvas():
+		print(ConsolePrinter._NEW_CANVAS, end='', flush=True)
+
+	@staticmethod
+	def close_canvas():
+		print(ConsolePrinter._BACK_TO_OLD_CANVAS, end='', flush=True)
+
+	def __enter__(self):
+		self.new_canvas()
+		return self
+
+	def __exit__(self, exc_type, exc_val, exc_tb):
+		self.close_canvas()
 
 	@staticmethod
 	def draw_pixel(row: int, col: int, color: AnsiColors, symbol: str):
 		pos = f"\033[{row+1};{col+1}H"
-
 		print(f"{color.value}{pos}{symbol}{AnsiColors.RESET.value}", end='', flush=True)
 
-	@staticmethod
-	def draw_char(row: int, col: int, char_template: list[str], color: AnsiColors, symbol: str, ):
+	@classmethod
+	def print_letter(cls, letter: str, position: tuple[int, int], color: AnsiColors, symbol: str) -> None:
+		char_template = ConsolePrinter._FONT.get(letter, [])
+		row, col = position
 		for i, line in enumerate(char_template):
 			for j, char in enumerate(line):
 				if char == "*":
-					ConsolePrinter.draw_pixel(row+i, col+j, color, symbol)
+					cls.draw_pixel(row + i, col + j, color, symbol)
 				else:
-					ConsolePrinter.draw_pixel(row+i, col+j, AnsiColors.BLACK, ' ')
+					cls.draw_pixel(row + i, col + j, AnsiColors.BLACK, ' ')
 
-
-	@classmethod
-	def print_static(cls):
-		pass
-
-	def print_letter(self, letter: str, position: tuple[int, int], color: AnsiColors, symbol: str):
-		char_template = ConsolePrinter._FONT.get(letter, [])
-		self.draw_char(position[0], position[1], char_template, color, symbol)
-
-	def print(self, text: str, position: tuple[int, int], color: AnsiColors, symbol: str):
+	def print(
+			self,
+			text: str,
+			position: tuple[int, int] | None = None,
+			color: AnsiColors | None = None,
+			symbol: str | None = None
+	):
 		"""
-		:param text:
 		:param position: (row, column)
 		:param color: ANSI color
 		:param symbol: one character
 		"""
-		print("\033[?1049l", end='', flush=True) # TODO for test
+		if position is None:
+			position = self._position
+		if color is None:
+			color = self._color
+		if symbol is None:
+			symbol = self._symbol
+
 		for i, letter in enumerate(text.lower()):
 			pos = (position[0], position[1] + i * (ConsolePrinter._FONT_WIDTH + 1))
 			self.print_letter(letter, pos, color, symbol)
+
+	@classmethod
+	def print_static(
+			cls,
+			text: str,
+			position: tuple[int, int] | None = None,
+			color: AnsiColors | None = None,
+			symbol: str | None = None
+	) -> None:
+		for i, letter in enumerate(text.lower()):
+			pos = (position[0], position[1] + i * (ConsolePrinter._FONT_WIDTH + 1))
+			cls.print_letter(letter, pos, color, symbol)
+
 
 class AnsiColors(Enum):
 	RESET = "\033[0m"
@@ -99,48 +131,12 @@ class AnsiColors(Enum):
 	BG_RED = "\033[41m"
 
 
-p = ConsolePrinter('fontConfig.json', None, None, None)
-
-print("\033[?1049h", end='', flush=True) # new canvas
-
-# p.draw_char(0, 0, ["__*__", "__*__", "_*_*_", "_*_*_", "*****", "*___*", "*___*"], AnsiColors.RED, symbol='*')
-# p.draw_char(0, 7, ["***__", "*__*_", "***__", "*____", "****_", "*___*", "*****"], AnsiColors.RED, symbol='*')
-# p.draw_char(0, 14, ["****_", "*____", "*____", "*____", "*____", "*____", "****_"], AnsiColors.RED, symbol='*')
-
-
-
-
-# i = 0
-# j = 0
-# d = [
-# 	AnsiColors.BRIGHT_RED,
-# 	AnsiColors.BRIGHT_GREEN,
-# 	AnsiColors.BRIGHT_YELLOW,
-# 	AnsiColors.BRIGHT_BLUE,
-# 	AnsiColors.BRIGHT_MAGENTA,
-# 	AnsiColors.BRIGHT_CYAN,
-# 	AnsiColors.BRIGHT_WHITE,
-# ]
-#
-# while True:
-# 	try:
-# 		if i == len(string.ascii_lowercase):
-# 			i = 0
-# 			j += 1
-# 			if j == len(d):
-# 				j = 0
-#
-# 		l = string.ascii_lowercase[i]
-# 		p.print_letter(l,(0, i*7), d[j], '#')
-# 		time.sleep(0.008)
-# 		i = i + 1
-# 	except KeyboardInterrupt:
-# 		print("\033[?1049l", end='', flush=True)  # back to old canvas
-# 		quit(0)
-
-p.print('hello world', (10, 10), AnsiColors.BRIGHT_YELLOW, '#')
-
-
+p = ConsolePrinter('fontConfig.json', AnsiColors.BRIGHT_YELLOW, (10, 10), '*')
+p.print('hello world!')
 time.sleep(2)
-print("\033[?1049l", end='', flush=True) # back to old canvas
+p.close_canvas()
 
+
+with ConsolePrinter('fontConfig.json', AnsiColors.BRIGHT_WHITE, (10, 10), '*') as p:
+	p.print('012345679')
+	time.sleep(200)
