@@ -35,7 +35,7 @@ class LevelFilter(ILogFilter):
 		self._level = level
 
 	def match(self, log_level: LogLevel, text: str) -> bool:
-		return self._level.value == log_level.value
+		return log_level.value >= self._level.value
 
 
 class ILogHandler(ABC):
@@ -72,7 +72,7 @@ class SocketHandler(ILogHandler):
 
 class ConsoleHandler(ILogHandler):
 	def handle(self, log_level: LogLevel, text: str) -> None:
-		print(f"{log_level.value}: {text}")
+		print(text)
 
 class SysLogHandler(ILogHandler):
 	def handle(self, log_level: LogLevel, text: str) -> None:
@@ -91,16 +91,22 @@ class ILogFormatter(ABC):
 
 class Formatter(ILogFormatter):
 	def format(self, log_level: LogLevel, text: str) -> str:
-		return f"[{log_level}] [{datetime.datetime.now()}] {text}" # TODO make in data:yyyy.MM.dd hh:mm:ss format
+		return f"[{log_level.name}] [{datetime.datetime.now()}] {text}" # TODO make in data:yyyy.MM.dd hh:mm:ss format
 
 
 class Logger:
 	def __init__(
 			self,
-			filters: list[ILogFilter],
-			formatters: list[ILogFormatter],
-			handlers: list[ILogHandler]
+			filters: list[ILogFilter] | ILogFilter,
+			formatters: list[ILogFormatter] | ILogFormatter,
+			handlers: list[ILogHandler] | ILogHandler,
 	):
+		if type(filters) is not list:
+			filters = [filters]
+		if type(formatters) is not list:
+			formatters = [formatters]
+		if type(handlers) is not list:
+			handlers = [handlers]
 		self._filters = filters
 		self._formatters = formatters
 		self._handlers = handlers
@@ -113,7 +119,7 @@ class Logger:
 				handler.handle(log_level, text)
 
 	def log(self, log_level: LogLevel, text: str) -> None:
-		pass
+		self._log(log_level, text)
 
 	def log_info(self, text: str) -> None:
 		self.log(LogLevel.INFO, text)
