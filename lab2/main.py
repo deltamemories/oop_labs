@@ -23,9 +23,9 @@ class ConsolePrinter:
 				ConsolePrinter._FONT_HEIGHT = cfg.get("font_height")
 				ConsolePrinter._FONT_LOADED = True
 		except FileNotFoundError as e:
-			pass # TODO
+			raise e
 		except json.JSONDecodeError as e:
-			pass # TODO
+			raise e
 		except Exception as e:
 			raise e
 
