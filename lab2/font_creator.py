@@ -47,3 +47,10 @@ print(json.dumps(c))
 symbols = list("!?#$%^&*()_+-÷/\\@")
 d = parse('5x7_letters_symbols.png', 5, symbols, 1)
 print(json.dumps(d))
+
+e = parse('3x5_letters_en.png', 3, alphabet_en, 1)
+print(json.dumps(e))
+
+f = parse('7x11_letters_en.png', 7, alphabet_en, 1)
+print(json.dumps(f))
+
