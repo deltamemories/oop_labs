@@ -104,6 +104,10 @@ class ConsolePrinter:
 		p = cls(path_to_font_config, color, position, symbol)
 		p.print(text)
 
+	@classmethod
+	def close_canvas_static(cls):
+		cls.close_canvas()
+
 
 class AnsiColors(Enum):
 	RESET = "\033[0m"
@@ -136,7 +140,7 @@ with ConsolePrinter('fontConfig.json', AnsiColors.BRIGHT_WHITE, (10, 10), '*') a
 
 ConsolePrinter.print_static('fontConfig.json', '!@#$%^&*()_+-/', AnsiColors.BLUE, (10, 10), '*')
 time.sleep(2)
-
+ConsolePrinter.close_canvas_static()
 
 with ConsolePrinter('fontConfig.json', AnsiColors.BRIGHT_CYAN, (10, 10), '*') as p:
 	p.print('привет мир!')
