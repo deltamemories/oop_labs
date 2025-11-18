@@ -6,38 +6,37 @@ from enum import Enum
 
 
 class ConsolePrinter:
-	_FONT: dict[str, list[str]] = {}
-	_FONT_HEIGHT : int
-	_FONT_WIDTH : int
-	_FONT_LOADED: bool = False
+	# _FONT: dict[str, list[str]] = {}
+	# _FONT_HEIGHT : int
+	# _FONT_WIDTH : int
+	# _FONT_LOADED: bool = False
+
 	_NEW_CANVAS: str = "\033[?1049h"
 	_BACK_TO_OLD_CANVAS: str = "\033[?1049l"
 
-	@staticmethod
-	def _load_font(file_path: str) -> None:
+	def __init__(self, path_to_font_config, color: AnsiColors, position: tuple[int, int], symbol: str):
+		self._font = None
+		self._font_width = None
+		self._font_height = None
+		self._load_font(path_to_font_config)
+		self._color = color
+		self._position = position
+		self._symbol = symbol
+		self.new_canvas()
+
+	def _load_font(self, file_path: str) -> None:
 		try:
 			with open(file_path, "r", encoding="utf-8") as f:
 				cfg = json.load(f)
-				ConsolePrinter._FONT = cfg.get("letters", {})
-				ConsolePrinter._FONT_WIDTH = cfg.get("font_width")
-				ConsolePrinter._FONT_HEIGHT = cfg.get("font_height")
-				ConsolePrinter._FONT_LOADED = True
+				self._font = cfg.get("letters", {})
+				self._font_width = cfg.get("font_width")
+				self._font_height = cfg.get("font_height")
 		except FileNotFoundError as e:
 			raise e
 		except json.JSONDecodeError as e:
 			raise e
 		except Exception as e:
 			raise e
-
-	def __init__(self, path_to_font_config, color: AnsiColors, position: tuple[int, int], symbol: str):
-		if not ConsolePrinter._FONT_LOADED:
-			ConsolePrinter._load_font(path_to_font_config)
-
-		self._path_to_font_config = path_to_font_config
-		self._color = color
-		self._position = position
-		self._symbol = symbol
-		self.new_canvas()
 
 	@staticmethod
 	def new_canvas():
@@ -59,16 +58,15 @@ class ConsolePrinter:
 		pos = f"\033[{row+1};{col+1}H"
 		print(f"{color.value}{pos}{symbol}{AnsiColors.RESET.value}", end='', flush=True)
 
-	@classmethod
-	def print_letter(cls, letter: str, position: tuple[int, int], color: AnsiColors, symbol: str) -> None:
-		char_template = ConsolePrinter._FONT.get(letter, [])
+	def print_letter(self, letter: str, position: tuple[int, int], color: AnsiColors, symbol: str) -> None:
+		char_template = self._font.get(letter, [])
 		row, col = position
 		for i, line in enumerate(char_template):
 			for j, char in enumerate(line):
 				if char == "*":
-					cls.draw_pixel(row + i, col + j, color, symbol)
+					self.draw_pixel(row + i, col + j, color, symbol)
 				else:
-					cls.draw_pixel(row + i, col + j, AnsiColors.BLACK, ' ')
+					self.draw_pixel(row + i, col + j, AnsiColors.BLACK, ' ')
 
 	def print(
 			self,
@@ -91,20 +89,20 @@ class ConsolePrinter:
 			symbol = self._symbol
 
 		for i, letter in enumerate(text.lower()):
-			pos = (position[0], position[1] + i * (ConsolePrinter._FONT_WIDTH + 1))
+			pos = (position[0], position[1] + i * (self._font_width + 1))
 			self.print_letter(letter, pos, color, symbol)
 
 	@classmethod
 	def print_static(
 			cls,
+			path_to_font_config: str,
 			text: str,
-			position: tuple[int, int] | None = None,
-			color: AnsiColors | None = None,
-			symbol: str | None = None
+			color: AnsiColors,
+			position: tuple[int, int],
+			symbol: str
 	) -> None:
-		for i, letter in enumerate(text.lower()):
-			pos = (position[0], position[1] + i * (ConsolePrinter._FONT_WIDTH + 1))
-			cls.print_letter(letter, pos, color, symbol)
+		p = cls(path_to_font_config, color, position, symbol)
+		p.print(text)
 
 
 class AnsiColors(Enum):
@@ -132,12 +130,22 @@ class AnsiColors(Enum):
 	BG_RED = "\033[41m"
 
 
-p = ConsolePrinter('fontConfig.json', AnsiColors.BRIGHT_YELLOW, (10, 10), '*')
-p.print('hello world!')
-time.sleep(2)
-p.close_canvas()
-
-
 with ConsolePrinter('fontConfig.json', AnsiColors.BRIGHT_WHITE, (10, 10), '*') as p:
 	p.print('012345679')
-	time.sleep(200)
+	time.sleep(2)
+
+ConsolePrinter.print_static('fontConfig.json', '!@#$%^&*()_+-/', AnsiColors.BLUE, (10, 10), '*')
+time.sleep(2)
+
+
+with ConsolePrinter('fontConfig.json', AnsiColors.BRIGHT_CYAN, (10, 10), '*') as p:
+	p.print('привет мир!')
+	time.sleep(2)
+
+with ConsolePrinter('fontConfig_3x5.json', AnsiColors.BRIGHT_CYAN, (10, 10), '*') as p:
+	p.print('hello world')
+	time.sleep(2)
+
+with ConsolePrinter('fontConfig_7x11.json', AnsiColors.BRIGHT_CYAN, (10, 10), '*') as p:
+	p.print('hello world')
+	time.sleep(2)
