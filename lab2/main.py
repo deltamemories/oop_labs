@@ -88,8 +88,14 @@ class ConsolePrinter:
 		if symbol is None:
 			symbol = self._symbol
 
-		for i, letter in enumerate(text.lower()):
-			pos = (position[0], position[1] + i * (self._font_width + 1))
+		i, j = 0, 0
+		for letter in text:
+			if letter == '\n':
+				j += 1
+				i = 0
+			else:
+				i += 1
+			pos = (position[0] + j * (self._font_height + 1), position[1] + i * (self._font_width + 1))
 			self.print_letter(letter, pos, color, symbol)
 
 	@classmethod
@@ -151,5 +157,5 @@ with ConsolePrinter('fontConfig_3x5.json', AnsiColors.BRIGHT_CYAN, (10, 10), '*'
 	time.sleep(2)
 
 with ConsolePrinter('fontConfig_7x11.json', AnsiColors.BRIGHT_CYAN, (10, 10), '*') as p:
-	p.print('hello world')
+	p.print('hello\nworld')
 	time.sleep(2)
