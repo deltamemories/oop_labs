@@ -1,16 +1,10 @@
 # lab2
-# example: ConsolePrinter.print_static(text: str, color: Color, position: Tuple[int, int], symbol: str)
 import json
 import time
 from enum import Enum
 
 
 class ConsolePrinter:
-	# _FONT: dict[str, list[str]] = {}
-	# _FONT_HEIGHT : int
-	# _FONT_WIDTH : int
-	# _FONT_LOADED: bool = False
-
 	_NEW_CANVAS: str = "\033[?1049h"
 	_BACK_TO_OLD_CANVAS: str = "\033[?1049l"
 
@@ -39,11 +33,11 @@ class ConsolePrinter:
 			raise e
 
 	@staticmethod
-	def new_canvas():
+	def new_canvas() -> None:
 		print(ConsolePrinter._NEW_CANVAS, end='', flush=True)
 
 	@staticmethod
-	def close_canvas():
+	def close_canvas() -> None:
 		print(ConsolePrinter._BACK_TO_OLD_CANVAS, end='', flush=True)
 
 	def __enter__(self):
@@ -54,32 +48,32 @@ class ConsolePrinter:
 		self.close_canvas()
 
 	@staticmethod
-	def draw_pixel(row: int, col: int, color: AnsiColors, symbol: str):
+	def _draw_pixel(row: int, col: int, color: AnsiColors, symbol: str):
 		pos = f"\033[{row+1};{col+1}H"
 		print(f"{color.value}{pos}{symbol}{AnsiColors.RESET.value}", end='', flush=True)
 
-	def print_letter(self, letter: str, position: tuple[int, int], color: AnsiColors, symbol: str) -> None:
+	def _print_letter(self, letter: str, position: tuple[int, int], color: AnsiColors, symbol: str) -> None:
 		char_template = self._font.get(letter, [])
 		row, col = position
 		for i, line in enumerate(char_template):
 			for j, char in enumerate(line):
 				if char == "*":
-					self.draw_pixel(row + i, col + j, color, symbol)
+					self._draw_pixel(row + i, col + j, color, symbol)
 				else:
-					self.draw_pixel(row + i, col + j, AnsiColors.BLACK, ' ')
+					self._draw_pixel(row + i, col + j, AnsiColors.BLACK, ' ')
 
 	def print(
 			self,
 			text: str,
-			position: tuple[int, int] | None = None,
 			color: AnsiColors | None = None,
+			position: tuple[int, int] | None = None,
 			symbol: str | None = None
 	):
 		"""
 		:param text: text to print
-		:param position: (row, column)
 		:param color: ANSI color
-		:param symbol: one character
+		:param position: (row, column)
+		:param symbol: the symbol that will be used to display the text (only one character)
 		"""
 		if position is None:
 			position = self._position
@@ -87,6 +81,9 @@ class ConsolePrinter:
 			color = self._color
 		if symbol is None:
 			symbol = self._symbol
+
+		if len(symbol) != 1:
+			raise ValueError("Symbol must be a single character")
 
 		i, j = 0, 0
 		for letter in text:
@@ -96,7 +93,7 @@ class ConsolePrinter:
 				continue
 
 			pos = (position[0] + j * (self._font_height + 1), position[1] + i * (self._font_width + 1))
-			self.print_letter(letter, pos, color, symbol)
+			self._print_letter(letter, pos, color, symbol)
 			i += 1
 
 	@classmethod
@@ -108,8 +105,15 @@ class ConsolePrinter:
 			position: tuple[int, int],
 			symbol: str
 	) -> None:
-		p = cls(path_to_font_config, color, position, symbol)
-		p.print(text)
+		"""
+		:param path_to_font_config: path to config with font
+		:param text: text to print
+		:param color: ANSI color
+		:param position: (row, column)
+		:param symbol: the symbol that will be used to display the text (only one character)
+		"""
+		printer = cls(path_to_font_config, color, position, symbol)
+		printer.print(text)
 
 	@classmethod
 	def close_canvas_static(cls):
@@ -145,7 +149,7 @@ with ConsolePrinter('fontConfig.json', AnsiColors.BRIGHT_WHITE, (10, 10), '*') a
 	p.print('012345679')
 	time.sleep(2)
 
-ConsolePrinter.print_static('fontConfig.json', '!@#$%^&*()_+-/', AnsiColors.BLUE, (10, 10), '*')
+ConsolePrinter.print_static('fontConfig.json', '!@#$%^&*()_+-/', AnsiColors.BRIGHT_YELLOW, (10, 10), '*')
 time.sleep(2)
 ConsolePrinter.close_canvas_static()
 
