@@ -93,10 +93,11 @@ class ConsolePrinter:
 			if letter == '\n':
 				j += 1
 				i = 0
-			else:
-				i += 1
+				continue
+
 			pos = (position[0] + j * (self._font_height + 1), position[1] + i * (self._font_width + 1))
 			self.print_letter(letter, pos, color, symbol)
+			i += 1
 
 	@classmethod
 	def print_static(
@@ -156,6 +157,6 @@ with ConsolePrinter('fontConfig_3x5.json', AnsiColors.BRIGHT_CYAN, (10, 10), '*'
 	p.print('hello world')
 	time.sleep(2)
 
-with ConsolePrinter('fontConfig_7x11.json', AnsiColors.BRIGHT_CYAN, (10, 10), '*') as p:
+with ConsolePrinter('fontConfig_7x11.json', AnsiColors.BRIGHT_CYAN, (0, 0), '*') as p:
 	p.print('hello\nworld')
 	time.sleep(2)
