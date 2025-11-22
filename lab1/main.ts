@@ -1,8 +1,9 @@
 const PI = Math.PI;
+const TOLERANCE = 0.000_001
 
 class Angle {
 	private _radians: number;
-    private readonly _tolerance: number = 0.000_001;
+    private readonly _tolerance: number = TOLERANCE;
 
 	private constructor(radians: number) {
 		if (Number.isNaN(radians)) {
@@ -88,12 +89,12 @@ class Angle {
 		return this._radians.toString()
 	}
 
-	public toString() {
+	public toString() { // python str()
 		return `${this._radians} radians`;
 	}
 
 	public representation() {
-		return `${this._radians} radians; ${this.degrees}°`;
+		return `${this._radians} radians; ${this.degrees}°; TOLERANCE: ${this._tolerance}`;
 	}
 
 	private applyOperation(
@@ -131,11 +132,13 @@ class Angle {
 }
 
 class AngleRange {
-	private _startRad: Angle;
-	private _endRad: Angle;
-	private _abs: number;
-	private _startInclusive: boolean;
-	private _endInclusive: boolean;
+	private readonly _startRad: Angle;
+	private readonly _endRad: Angle;
+	private readonly _abs: number;
+	private readonly _startInclusive: boolean;
+	private readonly _endInclusive: boolean;
+
+    private readonly _tolerance: number = TOLERANCE;
 
 	private constructor(
 		start: Angle, end: Angle,
@@ -181,6 +184,40 @@ class AngleRange {
 	public get abs(): number {
 		return this._abs;
 	}
+
+    private accuracyPassed(value: number): boolean {
+        return (Math.abs(value) < this._tolerance)
+    }
+
+    public isEquals(other: AngleRange) {
+        return this.accuracyPassed(this.abs - other.abs) &&
+            this.startInclusive == other.startInclusive &&
+            this.endInclusive == other.endInclusive;
+    }
+
+    public toString() { // python str()
+        return `start: ${this.start.toString()}, startInclusive: ${this.startInclusive}; end: ${this.end.toString()}, endInclusive: ${this.endInclusive}; abs: ${this.abs}`;
+    }
+
+    public representation() {
+        return `start: ${this.start.representation()}, startInclusive: ${this.startInclusive}; end: ${this.end.representation()}, endInclusive: ${this.endInclusive}; abs: ${this.abs}; TOLERANCE: ${this._tolerance}`;
+    }
+
+    public isGreaterThan(other: AngleRange) {
+        
+    }
+
+    public isLessThan(other: AngleRange) {
+
+    }
+
+    public isGreaterThanOrEqual(other: AngleRange) {
+
+    }
+
+    public isLessThanOrEqual(other: AngleRange) {
+
+    }
 
 
 }
@@ -239,3 +276,9 @@ const r1 = AngleRange.fromNumber(0.5, 0.7)
 const r2 = AngleRange.fromNumber(0.5 + PI*2, 0.7 + PI*2)
 
 console.log(r1.abs)
+console.log(r2.abs)
+
+console.log(r1.isEquals(r2))
+
+console.log(r1.toString())
+console.log(r1.representation())
