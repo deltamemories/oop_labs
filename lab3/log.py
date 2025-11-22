@@ -2,7 +2,7 @@ import datetime
 import re
 from abc import ABC, abstractmethod
 from enum import Enum
-
+import platform
 
 class LogLevel(Enum):
 	DEBUG = 0
@@ -16,6 +16,7 @@ class ILogFilter(ABC):
 	def match(self, log_level: LogLevel, text: str) -> bool:
 		pass
 
+
 class SimpleLogFilter(ILogFilter):
 	def __init__(self, pattern: str):
 		self._pattern = pattern
@@ -23,12 +24,14 @@ class SimpleLogFilter(ILogFilter):
 	def match(self, log_level: LogLevel, text: str) -> bool:
 		return self._pattern in text
 
+
 class ReLLogFilter(ILogFilter):
 	def __init__(self, re_pattern: str):
 		self._re_pattern = re_pattern
 
 	def match(self, log_level: LogLevel, text: str) -> bool:
 		return re.match(self._re_pattern, text) is not None
+
 
 class LevelFilter(ILogFilter):
 	def __init__(self, level: LogLevel):
@@ -43,14 +46,13 @@ class ILogHandler(ABC):
 	def handle(self, log_level: LogLevel, text: str) -> None:
 		pass
 
+
 class FileLogHandler(ILogHandler):
 	def __init__(self, file_path: str):
 		self._file_path = file_path
 		self._file_descriptor = None
 		try:
 			f = open(self._file_path, "a")
-		except FileNotFoundError as e:
-			raise e
 		except PermissionError as e:
 			raise e
 		except Exception as e:
@@ -63,20 +65,35 @@ class FileLogHandler(ILogHandler):
 			self._file_descriptor.close()
 
 	def handle(self, log_level: LogLevel, text: str) -> None:
-		print(f"{log_level.value}: {text}", file=self._file_descriptor)
+		print(text, file=self._file_descriptor)
 
 
 class SocketHandler(ILogHandler):
 	def handle(self, log_level: LogLevel, text: str) -> None:
 		pass # TODO SocketHandler.handle
 
+
 class ConsoleHandler(ILogHandler):
 	def handle(self, log_level: LogLevel, text: str) -> None:
 		print(text)
 
+
 class SysLogHandler(ILogHandler):
+	# CHECK_SOURCE_COMMAND = # TODO
+	def __init__(self, app_name: str):
+		self._app_name = app_name
+		self._platform = platform.system()
+
+		if self._platform == "Linux":
+			pass # do nothing
+		elif self._platform == "Windows":
+			pass # TODO
+		else:
+			raise ValueError(f"Unsupported platform: {self._platform}")
+
 	def handle(self, log_level: LogLevel, text: str) -> None:
 		pass # TODO SysLogHandler.handle
+
 
 class FtpHandler(ILogHandler):
 	def handle(self, log_level: LogLevel, text: str) -> None:
