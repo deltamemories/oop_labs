@@ -85,7 +85,7 @@ class DataRepository <T extends {id: number}> implements IDataRepository<T>{
     private loadJson() {
         try {
             const file = fs.readFileSync(this.filepath, 'utf8');
-            const parsedJson = JSON.parse(file);
+            const parsedJson = JSON.parse(file); // TODO parse to User[]
             if (Array.isArray(parsedJson)) {
                 this.items = parsedJson;
             } else {
