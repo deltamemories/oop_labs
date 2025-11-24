@@ -180,3 +180,64 @@ class UserRepository extends DataRepository<User> implements IUserRepository {
         return undefined;
     }
 }
+
+class AuthService implements IAuthService {
+    private userRepository: IUserRepository;
+    private sessionFilepath: string;
+    private _currentUser: User | undefined;
+
+    constructor(userRepository: IUserRepository, sessionFilepath: string) {
+        this.userRepository = userRepository;
+        this.sessionFilepath = sessionFilepath;
+        this.restoreSession();
+    }
+
+    private restoreSession(): void {
+        try {
+            const sessionFile = fs.readFileSync(this.sessionFilepath, 'utf8');
+            const session = JSON.parse(sessionFile);
+            if (session.id !== undefined) {
+                const user = this.userRepository.getById(session.id)
+                if (user !== undefined) {
+                    this._currentUser = user;
+                }
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    private saveSession(user: User | undefined): void {
+        try {
+            let data: number | string;
+            if (user !== undefined) {
+                data = user.id
+            } else {
+                data = "";
+            }
+            fs.writeFileSync(this.sessionFilepath, JSON.stringify(data));
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    public signIn(user: User): void {
+        this._currentUser = user;
+        this.saveSession(user)
+    }
+
+    public signOut(user: User): void {
+        if (this._currentUser !== undefined && this._currentUser.id === user.id) {
+            this._currentUser = undefined;
+            this.saveSession(undefined)
+        }
+    }
+
+    public isAuthorized(): boolean {
+        return this._currentUser !== undefined;
+    }
+
+    public currentUser(): User | undefined {
+        return this._currentUser;
+    }
+}
