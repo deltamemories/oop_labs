@@ -2,4 +2,7 @@
 
 - 1 wip
 - 2 pass
-- 3 
+- 3 wip
+- 4 not started
+- 5 final stage
+- 6 draft
