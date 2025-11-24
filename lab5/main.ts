@@ -76,18 +76,24 @@ interface IAuthService {
 class DataRepository <T extends {id: number}> implements IDataRepository<T>{
     filepath: string;
     protected items: T[] = [];
+    private readonly converter: ((obj: any) => T) | undefined;
 
-    constructor(filepath: string) {
+    constructor(filepath: string, converter?: (obj: any) => T) {
         this.filepath = filepath;
+        this.converter = converter;
         this.loadJson();
     }
 
     private loadJson() {
         try {
             const file = fs.readFileSync(this.filepath, 'utf8');
-            const parsedJson = JSON.parse(file); // TODO parse to User[]
+            const parsedJson = JSON.parse(file);
             if (Array.isArray(parsedJson)) {
-                this.items = parsedJson;
+                if (this.converter) {
+                    this.items = parsedJson.map(item => this.converter!(item));
+                } else {
+                    this.items = parsedJson;
+                }
             } else {
                 this.items = [];
             }
@@ -152,6 +158,19 @@ class DataRepository <T extends {id: number}> implements IDataRepository<T>{
 
 
 class UserRepository extends DataRepository<User> implements IUserRepository {
+    constructor(filepath: string) {
+        super(filepath, (obj: any) => {
+            return new User(
+                obj.id,
+                obj.name,
+                obj.login,
+                obj.password,
+                obj.email,
+                obj.address,
+            );
+        });
+    }
+
     getByLogin(login: string): User | undefined {
         for (const item of this.items) {
             if (item.login === login) {
