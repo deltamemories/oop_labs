@@ -17,25 +17,25 @@
 - Сделать, чтобы коллекция классов User умела сортироваться по полю name.
 - Реализовать через dataclass или через аналоги в других языках (C# и Java: record)
 
-2. Создать интерфейс / протокол IDataRepository[T] / DataRepsitoryProtocol[T] для системы CRUD = Create, Read, Update, Delete для произвольного типа данных:
+2. Создать интерфейс / протокол IDataRepository[T] / DataRepositoryProtocol[T] для системы CRUD = Create, Read, Update, Delete для произвольного типа данных:
   - get_all(self) -> Sequence[T]
   - get_by_id(self, id: int) -> T | None
   - add(self, item: T) -> None
   - update(self, item: T) -> None
   - delete(self, item: T) -> None
 
-2. Создать интерфейс / протокол IUserRepository ( IDataRepository[User]) / UserRepositoryProtocol (DataRepsitoryProtocol[User]) для взаимодействия с типом данных User
+2. Создать интерфейс / протокол IUserRepository ( IDataRepository[User]) / UserRepositoryProtocol (DataRepositoryProtocol[User]) для взаимодействия с типом данных User
  - get_by_login(self, login: str) -> User | None
 
-3. Создать реализацию  DataRepository[T](IDataRepository[T) / DataRepitoryProtocol[T] supports IDataRepsitoryProtocol[T]
+3. Создать реализацию  DataRepository[T](IDataRepository[T) / DataRepositoryProtocol[T] supports IDataRepositoryProtocol[T]
   - Осуществляет хранение данных в файле
   - Можно использовать сторонние сериализаторы (Напр., pickle, json, xml)
 
-4. Создать реализацию UserRepository(IUserRepository) / supports UserRepositoryProtocol на основе DataRepository[T](IDataRepository[T) / DataRepitoryProtocol[T]
+4. Создать реализацию UserRepository(IUserRepository) / supports UserRepositoryProtocol на основе DataRepository[T](IDataRepository[T) / DataRepositoryProtocol[T]
 
 5. Создать интерфейс / протокол IAuthService / AuthServiceProtocol
   - sign_in(self, user: User) -> None
-  - sign_out(selg, user: User) -> None
+  - sign_out(self, user: User) -> None
   - is_authorized -> bool
   - current_user  -> User
 
@@ -46,4 +46,4 @@
  - редактирование свойств пользователя
  - авторизация пользователя
  - смена текущего пользователя
- - авторматическая авторизация при повторном заходе в программу
+ - автоматическая авторизация при повторном заходе в программу

@@ -5,7 +5,7 @@ class User {
     id: number;
     name: string;
     login: string;
-    private password: string;
+    #password: string;
     email: string | undefined;
     address: string | undefined;
 
@@ -20,29 +20,37 @@ class User {
         this.id = id;
         this.name = name;
         this.login = login;
-        this.password = password;
+        this.#password = password;
         this.email = email;
         this.address = address;
     }
 
-    public getPassword() {
-        return this.password;
+    public get password(): string {
+        return this.#password;
     }
 
-    public setPassword(password: string) {
-        this.password = password;
+    public set password(password: string) {
+        this.#password = password;
     }
 
-    public static compareByName(a: User, b: User):number {
+    public static compareByName(a: User, b: User): number {
         if (a.name < b.name) return -1;
         else if (a.name > b.name) return 1;
         else return 0;
     }
 
-    public toString(): string {
-        return `${this.id} ${this.name} ${this.login} *** ${this.email} ${this.address}`;
+    toJSON() {
+        return {
+            id: this.id,
+            name: this.name,
+            login: this.login,
+            password: this.password,
+            email: this.email,
+            address: this.address,
+        }
     }
 
+    // toString(): string {} // TODO
 }
 
 
@@ -58,9 +66,11 @@ interface IDataRepository<T extends {id: number}>{
     delete(item: T): void;
 }
 
+
 interface IUserRepository extends IDataRepository<User> {
     getByLogin(login: string): User | undefined;
 }
+
 
 interface IAuthService {
     signIn(user: User): void;
@@ -74,7 +84,7 @@ interface IAuthService {
 
 
 class DataRepository <T extends {id: number}> implements IDataRepository<T>{
-    filepath: string;
+    private readonly filepath: string;
     protected items: T[] = [];
     private readonly converter: ((obj: any) => T) | undefined;
 
@@ -84,7 +94,7 @@ class DataRepository <T extends {id: number}> implements IDataRepository<T>{
         this.loadJson();
     }
 
-    private loadJson() {
+    private loadJson(): void {
         try {
             const file = fs.readFileSync(this.filepath, 'utf8');
             const parsedJson = JSON.parse(file);
@@ -102,7 +112,7 @@ class DataRepository <T extends {id: number}> implements IDataRepository<T>{
         }
     }
 
-    private saveJson() {
+    private saveJson(): void {
         try {
             const json = JSON.stringify(this.items);
             fs.writeFileSync(this.filepath, json, 'utf8');
@@ -147,7 +157,7 @@ class DataRepository <T extends {id: number}> implements IDataRepository<T>{
         }
     }
 
-    delete(item: T) {
+    delete(item: T): void {
         const index = this.getIndexById(item.id);
         if (index !== undefined) {
             this.items.splice(index, 1);
@@ -181,9 +191,10 @@ class UserRepository extends DataRepository<User> implements IUserRepository {
     }
 }
 
+
 class AuthService implements IAuthService {
     private userRepository: IUserRepository;
-    private sessionFilepath: string;
+    private readonly sessionFilepath: string;
     private _currentUser: User | undefined;
 
     constructor(userRepository: IUserRepository, sessionFilepath: string) {
@@ -195,15 +206,17 @@ class AuthService implements IAuthService {
     private restoreSession(): void {
         try {
             const sessionFile = fs.readFileSync(this.sessionFilepath, 'utf8');
-            const session = JSON.parse(sessionFile);
-            if (session.id !== undefined) {
-                const user = this.userRepository.getById(session.id)
+            const sessionId = JSON.parse(sessionFile);
+            if (typeof sessionId === 'number' && Number.isInteger(sessionId)) {
+                const user = this.userRepository.getById(sessionId)
                 if (user !== undefined) {
                     this._currentUser = user;
                 }
             }
         } catch (error) {
-            throw error;
+            if ((error as any).code !== 'ENOENT') {
+                throw error;
+            }
         }
     }
 
@@ -222,8 +235,14 @@ class AuthService implements IAuthService {
     }
 
     public signIn(user: User): void {
-        this._currentUser = user;
-        this.saveSession(user)
+        const id = user.id
+        const userFromRepository = this.userRepository.getById(id)
+        if (userFromRepository !== undefined) {
+            if (userFromRepository.password === user.password) {
+                this._currentUser = user;
+                this.saveSession(user)
+            }
+        }
     }
 
     public signOut(user: User): void {
@@ -241,3 +260,59 @@ class AuthService implements IAuthService {
         return this._currentUser;
     }
 }
+
+
+
+
+const userRep = new UserRepository('./data/db.json')
+const authServ = new AuthService(userRep, './data/auth.json')
+
+
+userRep.add(new User(1, 'Jessy', 'aboba', '123', 'jessy@gmail.com', 'moon'))
+userRep.add(new User(2, 'Ferb', 'fff', '001', 'ferb@gmail.com', 'sun'))
+
+console.log("=================== GET ALL")
+console.log(userRep.getAll())
+console.log("===================")
+
+console.log("=================== UPDATE")
+console.log(userRep.getById(1))
+userRep.update(new User(1, 'Jessy', 'llll', '123', 'jessy@gmail.com', 'moon'))
+console.log(userRep.getById(1))
+console.log("===================")
+
+console.log("=================== GET BY LOGIN")
+console.log(userRep.getByLogin('fff'))
+console.log("===================")
+
+console.log("=================== COMPARE BY NAME")
+let users = userRep.getAll();
+users = users.sort(User.compareByName)
+console.log(users);
+console.log("===================")
+
+
+console.log("=================== SIGN IN login: fff")
+authServ.signIn(userRep.getByLogin('fff')!)
+console.log(authServ.isAuthorized())
+console.log(authServ.currentUser())
+console.log("===================")
+
+// SIGN OUT
+authServ.signOut(userRep.getByLogin('fff')!)
+authServ.isAuthorized()
+
+// SIGN IN login: llll"
+authServ.signIn(userRep.getByLogin('llll')!)
+
+//test
+const u = new User(1, '', '', 'pwd')
+console.log(u)
+console.log(u.toString())
+
+
+// SHUT DOWN
+
+// console.log("=================== RESTORE SESSION")
+// console.log(authServ.currentUser())
+// console.log("===================")
