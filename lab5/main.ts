@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-
+import * as path from 'path'
 
 class User {
     id: number;
@@ -39,7 +39,7 @@ class User {
         else return 0;
     }
 
-    toJSON() {
+     toJSON() {
         return {
             id: this.id,
             name: this.name,
@@ -50,7 +50,9 @@ class User {
         }
     }
 
-    // toString(): string {} // TODO
+    toString(): string {
+        return `${this.id} ${this.name} ${this.login} ${this.email} ${this.address}`;
+    }
 }
 
 
@@ -115,6 +117,7 @@ class DataRepository <T extends {id: number}> implements IDataRepository<T>{
     private saveJson(): void {
         try {
             const json = JSON.stringify(this.items);
+            fs.mkdirSync(path.dirname(this.filepath), {recursive: true});
             fs.writeFileSync(this.filepath, json, 'utf8');
         } catch (error) {
             throw error;
@@ -214,9 +217,7 @@ class AuthService implements IAuthService {
                 }
             }
         } catch (error) {
-            if ((error as any).code !== 'ENOENT') {
-                throw error;
-            }
+            // nothing
         }
     }
 
@@ -228,6 +229,7 @@ class AuthService implements IAuthService {
             } else {
                 data = "";
             }
+            fs.mkdirSync(path.dirname(this.sessionFilepath), {recursive: true});
             fs.writeFileSync(this.sessionFilepath, JSON.stringify(data));
         } catch (error) {
             throw error;
@@ -304,12 +306,6 @@ authServ.isAuthorized()
 
 // SIGN IN login: llll"
 authServ.signIn(userRep.getByLogin('llll')!)
-
-//test
-const u = new User(1, '', '', 'pwd')
-console.log(u)
-console.log(u.toString())
-
 
 // SHUT DOWN
 
