@@ -3,6 +3,7 @@ import re
 from abc import ABC, abstractmethod
 from enum import Enum
 import platform
+import socket
 
 class LogLevel(Enum):
 	DEBUG = 0
@@ -69,8 +70,26 @@ class FileLogHandler(ILogHandler):
 
 
 class SocketHandler(ILogHandler):
+	def __init__(self, host: str, port: int):
+		self._host = host
+		self._port = port
+		self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		try:
+			self._socket.connect((self._host, self._port))
+		except ConnectionError as e:
+			print(f"Warning: Could not connect to socket logger: {e}")
+
+	def __del__(self):
+		if hasattr(self, '_socket'):
+			self._socket.close()
+
 	def handle(self, log_level: LogLevel, text: str) -> None:
-		pass # TODO SocketHandler.handle
+		if hasattr(self, '_socket'):
+			try:
+				msg = f"{text}\n".encode('utf-8')
+				self._socket.sendall(msg)
+			except Exception as e:
+				print(f"Socket logging error: {e}")
 
 
 class ConsoleHandler(ILogHandler):
@@ -108,7 +127,7 @@ class ILogFormatter(ABC):
 
 class Formatter(ILogFormatter):
 	def format(self, log_level: LogLevel, text: str) -> str:
-		return f"[{log_level.name}] [{datetime.datetime.now()}] {text}" # TODO make in data:yyyy.MM.dd hh:mm:ss format
+		return f"[{log_level.name}] [{datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")}] {text}"
 
 
 class Logger:
