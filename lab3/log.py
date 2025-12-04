@@ -98,25 +98,18 @@ class ConsoleHandler(ILogHandler):
 
 
 class SysLogHandler(ILogHandler):
-	# CHECK_SOURCE_COMMAND = # TODO
-	def __init__(self, app_name: str):
-		self._app_name = app_name
-		self._platform = platform.system()
-
-		if self._platform == "Linux":
-			pass # do nothing
-		elif self._platform == "Windows":
-			pass # TODO
-		else:
-			raise ValueError(f"Unsupported platform: {self._platform}")
-
 	def handle(self, log_level: LogLevel, text: str) -> None:
-		pass # TODO SysLogHandler.handle
+		print(f"Writing to syslog: {text}")
 
 
 class FtpHandler(ILogHandler):
+	def __init__(self, ip: str, port: int, login: str, password: str):
+		self._ip = ip
+		self._port = port
+		self._login = login
+		self._password = password
 	def handle(self, log_level: LogLevel, text: str) -> None:
-		pass # TODO FtpHandler.handle
+		print(f"Sending to {self._ip}:{self._port}")
 
 
 class ILogFormatter(ABC):
