@@ -1,9 +1,14 @@
 const PI = Math.PI;
 const TOLERANCE = 0.000_001
 
+
+function accuracyPassed(radians1: number, radians2: number): boolean {
+	return (Math.abs(radians1 - radians2) < TOLERANCE)
+}
+
+
 class Angle {
 	private _radians: number;
-    private readonly _tolerance: number = TOLERANCE;
 
 	private constructor(radians: number) {
 		if (Number.isNaN(radians)) {
@@ -25,10 +30,6 @@ class Angle {
 		const radians = Number(radiansStr);
 		return new Angle(radians);
 	}
-
-    private accuracyPassed(radians: number): boolean {
-        return (Math.abs(radians) < this._tolerance)
-    }
 
 	public getNormalizedAngleInRadians() {
 		let normalizedAngleInRadians: number = this._radians % (PI*2);
@@ -58,23 +59,35 @@ class Angle {
 
 
 	public isEquals(other: Angle) {
-		return this.accuracyPassed(this.getNormalizedAngleInRadians() - other.getNormalizedAngleInRadians());
+		return accuracyPassed(this.getNormalizedAngleInRadians(), other.getNormalizedAngleInRadians());
 	}
 
 	public isGreaterThan(other: Angle) {
+		if (accuracyPassed(this.getNormalizedAngleInRadians(), other.getNormalizedAngleInRadians())) {
+			return false;
+		}
 		return this.getNormalizedAngleInRadians() > other.getNormalizedAngleInRadians();
 	}
 
 	public isLessThan(other: Angle) {
+		if (accuracyPassed(this.getNormalizedAngleInRadians(), other.getNormalizedAngleInRadians())) {
+			return false;
+		}
 		return this.getNormalizedAngleInRadians() < other.getNormalizedAngleInRadians();
 	}
 
 	public isGreaterThanOrEqual(other: Angle) {
-		return this.getNormalizedAngleInRadians() >= other.getNormalizedAngleInRadians();
+		if (accuracyPassed(this.getNormalizedAngleInRadians(), other.getNormalizedAngleInRadians())) {
+			return true;
+		}
+		return this.getNormalizedAngleInRadians() > other.getNormalizedAngleInRadians();
 	}
 
 	public isLessThanOrEqual(other: Angle) {
-		return this.getNormalizedAngleInRadians() <= other.getNormalizedAngleInRadians();
+		if (accuracyPassed(this.getNormalizedAngleInRadians(), other.getNormalizedAngleInRadians())) {
+			return true;
+		}
+		return this.getNormalizedAngleInRadians() < other.getNormalizedAngleInRadians();
 	}
 
 	public getFloat() {
@@ -94,7 +107,7 @@ class Angle {
 	}
 
 	public representation() {
-		return `${this._radians} radians; ${this.degrees}°; TOLERANCE: ${this._tolerance}`;
+		return `${this._radians} radians; ${this.degrees}°`;
 	}
 
 	private applyOperation(
@@ -129,16 +142,27 @@ class Angle {
 	public sub(other: Angle | number | string): Angle {
 		return this.applyOperation(other, (a, b) => a - b);
 	}
+
+	public mul(other: number): Angle {
+		return Angle.fromRadians(this.radians * other)
+	}
+
+	public div(other: number): Angle {
+		if (other == 0) {
+			throw new Error("Zero division error")
+		}
+		return Angle.fromRadians(this.radians / other)
+	}
 }
+
 
 class AngleRange {
 	private readonly _startRad: Angle;
 	private readonly _endRad: Angle;
 	private readonly _abs: number;
+	private readonly _normalizedAbs: number
 	private readonly _startInclusive: boolean;
 	private readonly _endInclusive: boolean;
-
-    private readonly _tolerance: number = TOLERANCE;
 
 	private constructor(
 		start: Angle, end: Angle,
@@ -149,6 +173,7 @@ class AngleRange {
 		this._startInclusive = startInclusive;
 		this._endInclusive = endInclusive;
 		this._abs = Math.abs(this.start.radians - this.end.radians);
+		this._normalizedAbs = Math.abs(this.start.getNormalizedAngleInRadians() - this.end.getNormalizedAngleInRadians());
 	}
 
 	public static fromAngle(
@@ -185,41 +210,56 @@ class AngleRange {
 		return this._abs;
 	}
 
-    private accuracyPassed(value: number): boolean {
-        return (Math.abs(value) < this._tolerance)
-    }
+	public get normalizedAbs(): number {
+		return this._normalizedAbs;
+	}
 
-    public isEquals(other: AngleRange) {
-        return this.accuracyPassed(this.abs - other.abs) &&
-            this.startInclusive == other.startInclusive &&
-            this.endInclusive == other.endInclusive;
-    }
+	private countBrackets(): number {
+		let cnt = 0
+		if (this._startInclusive) {
+			cnt += 1
+		}
+		if (this._endInclusive) {
+			cnt += 1
+		}
+		return cnt;
+	}
 
     public toString() { // python str()
         return `start: ${this.start.toString()}, startInclusive: ${this.startInclusive}; end: ${this.end.toString()}, endInclusive: ${this.endInclusive}; abs: ${this.abs}`;
     }
 
     public representation() {
-        return `start: ${this.start.representation()}, startInclusive: ${this.startInclusive}; end: ${this.end.representation()}, endInclusive: ${this.endInclusive}; abs: ${this.abs}; TOLERANCE: ${this._tolerance}`;
+        return `start: ${this.start.representation()}, startInclusive: ${this.startInclusive}; end: ${this.end.representation()}, endInclusive: ${this.endInclusive}; abs: ${this.abs}`;
     }
 
-    public isGreaterThan(other: AngleRange) {
-        
+	public isEquals(other: AngleRange) {
+		return accuracyPassed(this.abs, other.abs) && this.countBrackets() === other.countBrackets();
+	}
+
+    public isGreaterThan(other: AngleRange): boolean {
+		if (accuracyPassed(this.normalizedAbs, other.normalizedAbs)) { // len is equals
+			return this.countBrackets() > other.countBrackets();
+		} else {
+			return this.normalizedAbs > other.normalizedAbs;
+		}
     }
 
-    public isLessThan(other: AngleRange) {
-
+    public isGreaterThanOrEqual(other: AngleRange): boolean {
+		return this.isGreaterThan(other) || this.isEquals(other);
     }
 
-    public isGreaterThanOrEqual(other: AngleRange) {
+	public isLessThan(other: AngleRange): boolean {
+		return this.isLessThanOrEqual(other) && !this.isEquals(other);
+	}
 
+    public isLessThanOrEqual(other: AngleRange): boolean {
+		return !this.isGreaterThan(other)
     }
 
-    public isLessThanOrEqual(other: AngleRange) {
-
-    }
-
-
+	public contains(other: AngleRange) {
+		// TODO
+	}
 }
 
 
