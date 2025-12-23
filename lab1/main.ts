@@ -257,8 +257,31 @@ class AngleRange {
 		return !this.isGreaterThan(other)
     }
 
-	public contains(other: AngleRange) {
-		// TODO
+	public contains(other: AngleRange | Angle): boolean {
+		if (other instanceof AngleRange) {
+			return this.contains(other.start) && this.contains(other.end);
+		} else {
+			if (accuracyPassed(this.start.radians, other.radians)) {
+				return this._startInclusive;
+			}
+
+			if (accuracyPassed(this.end.radians, other.radians)) {
+				return this._endInclusive;
+			}
+
+			if (this.start < this.end) {
+				return other.radians > this.start.radians && other.radians < this.end.radians;
+			} else {
+				return other.radians < this.start.radians && other.radians > this.end.radians;
+			}
+
+		}
+	}
+
+	public add(other: AngleRange): AngleRange[] {}
+
+	public sub(other: AngleRange): AngleRange[] {
+
 	}
 }
 
