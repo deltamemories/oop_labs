@@ -234,7 +234,9 @@ class AngleRange {
     }
 
 	public isEquals(other: AngleRange) {
-		return accuracyPassed(this.abs, other.abs) && this.countBrackets() === other.countBrackets();
+		return accuracyPassed(this.abs, other.abs) &&
+			this.startInclusive == other.startInclusive &&
+			this.endInclusive == other.endInclusive;
 	}
 
     public isGreaterThan(other: AngleRange): boolean {
@@ -278,10 +280,57 @@ class AngleRange {
 		}
 	}
 
-	public add(other: AngleRange): AngleRange[] {}
+	private isIntersect(other: AngleRange): boolean {
+		return (this.contains(other.start) || this.contains(other.end) || other.contains(this.start))
+	}
+
+	public add(other: AngleRange): AngleRange[] {
+		if (!this.isIntersect(other)) {
+			return [this, other];
+		}
+
+		if (other.contains(this) || this.contains(other)) {
+			return [this];
+		}
+
+		let newStart = this.start
+		let newEnd = this.end
+
+		if (this.contains(other.start)) {
+			newEnd = other.end
+		}
+
+		if (other.contains(this.start)) {
+			newStart = other.start
+		}
+
+		return [new AngleRange(newStart, newEnd, this.startInclusive || other.startInclusive, this.endInclusive || other.endInclusive)];
+	}
 
 	public sub(other: AngleRange): AngleRange[] {
+		if (!this.isIntersect(other)) {
+			return [this];
+		}
 
+		if (other.contains(this)) {
+			return [];
+		}
+
+		if (this.contains(other.start) && this.contains(other.end)) {
+			let r1 = new AngleRange(this.start, other.start, this.startInclusive, !other.startInclusive);
+			let r2 = new AngleRange(other.end, this.end, !other.endInclusive, this.endInclusive);
+			return [r1, r2]
+		}
+
+		if (other.contains(this.start)) {
+			return [new AngleRange(other.end, this.end, !other.endInclusive, this.endInclusive)];
+		}
+
+		if (other.contains(this.end)) {
+			return [new AngleRange(this.start, other.start, this.startInclusive, !other.startInclusive)];
+		}
+
+		return [this]
 	}
 }
 
