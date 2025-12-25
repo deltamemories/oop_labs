@@ -234,9 +234,10 @@ class AngleRange {
     }
 
 	public isEquals(other: AngleRange) {
-		return accuracyPassed(this.abs, other.abs) &&
-			this.startInclusive == other.startInclusive &&
-			this.endInclusive == other.endInclusive;
+		return this.start.isEquals(other.start) &&
+			this.end.isEquals(other.end) &&
+			this.startInclusive === other.startInclusive &&
+			this.endInclusive === other.endInclusive;
 	}
 
     public isGreaterThan(other: AngleRange): boolean {
@@ -261,7 +262,7 @@ class AngleRange {
 
 	public contains(other: AngleRange | Angle): boolean {
 		if (other instanceof AngleRange) {
-			return this.contains(other.start) && this.contains(other.end);
+			return this.contains(other.start) || this.contains(other.end);
 		} else {
 			if (accuracyPassed(this.start.radians, other.radians)) {
 				return this._startInclusive;
