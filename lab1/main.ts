@@ -172,7 +172,7 @@ class AngleRange {
 		this._endRad = end;
 		this._startInclusive = startInclusive;
 		this._endInclusive = endInclusive;
-		this._abs = Math.abs(this.start.radians - this.end.radians);
+		this._abs = this.angularLength;
 		this._normalizedAbs = Math.abs(this.start.getNormalizedAngleInRadians() - this.end.getNormalizedAngleInRadians());
 	}
 
@@ -188,6 +188,17 @@ class AngleRange {
 		startInclusive: boolean = false, endInclusive: boolean = false
 	): AngleRange {
 		return new AngleRange(Angle.fromRadians(start), Angle.fromRadians(end), startInclusive, endInclusive);
+	}
+
+	public get angularLength(): number {
+		const s = this.start.getNormalizedAngleInRadians();
+		const e = this.end.getNormalizedAngleInRadians();
+
+		if (e >= s) {
+			return e - s;
+		} else {
+			return (2 * PI - s) + e;
+		}
 	}
 
 	private get start() { // may be public
@@ -226,7 +237,10 @@ class AngleRange {
 	}
 
     public toString() { // python str()
-        return `start: ${this.start.toString()}, startInclusive: ${this.startInclusive}; end: ${this.end.toString()}, endInclusive: ${this.endInclusive}; abs: ${this.abs}`;
+		const leftBracket = this._startInclusive ? '[' : '(';
+		const rightBracket = this._endInclusive ? ']' : ')';
+
+		return `${leftBracket}${this.start.radians}, ${this.end.radians}${rightBracket}`;
     }
 
     public representation() {
@@ -262,7 +276,7 @@ class AngleRange {
 
 	public contains(other: AngleRange | Angle): boolean {
 		if (other instanceof AngleRange) {
-			return this.contains(other.start) || this.contains(other.end);
+			return this.contains(other.start) && this.contains(other.end);
 		} else {
 			if (accuracyPassed(this.start.radians, other.radians)) {
 				return this._startInclusive;
@@ -290,7 +304,9 @@ class AngleRange {
 			return [this, other];
 		}
 
-		if (other.contains(this) || this.contains(other)) {
+		if (other.contains(this) ) {
+			return [other];
+		} else if (this.contains(other)) {
 			return [this];
 		}
 
@@ -336,62 +352,66 @@ class AngleRange {
 }
 
 
-const a1 = Angle.fromDegrees(450)
-const a2 = Angle.fromRadians(PI/6)
+const PI_VAL = Math.PI;
 
-console.log(a1)
-console.log(a2)
+console.log("--- 1. Демонстрация работы Angle ---");
 
-console.log(a1.radians)
-console.log(a1.degrees)
+const a1 = Angle.fromDegrees(90);
+const a2 = Angle.fromRadians(PI_VAL);
+const a3 = Angle.fromDegrees(450); // 450 = 360 + 90
 
-console.log(a1.getNormalizedAngleInRadians())
-console.log(a2.getNormalizedAngleInRadians())
+console.log(`Угол 1: ${a1.toString()} (${a1.degrees}°)`);
+console.log(`Угол 2: ${a2.toString()} (${a2.degrees}°)`);
+console.log(`Угол 3: ${a3.toString()} (${a3.degrees}°)`);
 
-a1.angleRad = 3*PI
-a2.angleDeg = 45
+console.log(`Сравнение a1 == a3 (с учетом периода): ${a1.isEquals(a3)}`); // true
+console.log(`Преобразование a1: Float=${a1.getFloat()}, Int=${a1.getInt()}`);
 
-console.log(a1.radians)
-console.log(a2.degrees)
-a1.angleRad = 2*PI
-a2.angleRad = 20*PI
+const sum = a1.add(a2);
+console.log(`Сложение (90° + 180°): ${sum.degrees}°`);
 
-console.log("eq", a1.isEquals(a2))
-
-console.log(a1.degrees)
-console.log(a2.degrees)
-
-console.log(a1.isGreaterThan(a2))
-console.log(a1.isLessThan(a2))
-
-console.log(a1.isGreaterThanOrEqual(a2))
-console.log(a1.isLessThanOrEqual(a2))
-
-console.log(a1.getFloat())
-console.log(a1.getInt())
-console.log(a1.getString())
-
-console.log(a1.toString())
-console.log(a1.representation())
+const mathOp = a1.add(0.5).sub(0.2).mul(2).div(1);
+console.log(`Цепочка операций (числа как радианы): ${mathOp.toString()}`);
 
 
-console.log(a1)
-console.log(a1.add(a2))
-console.log(a1.add(6))
-console.log(a1.add('12'))
+console.log("\n--- 2. Демонстрация работы AngleRange ---");
 
-console.log(a1)
-console.log(a1.sub(a2))
-console.log(a1.sub(6))
-console.log(a1.sub('12'))
+const start = Angle.fromDegrees(350);
+const end = Angle.fromDegrees(20);
 
-const r1 = AngleRange.fromNumber(0.5, 0.7)
-const r2 = AngleRange.fromNumber(0.5 + PI*2, 0.7 + PI*2)
+const range = AngleRange.fromAngle(start, end, true, false);
 
-console.log(r1.abs)
-console.log(r2.abs)
+console.log(`Промежуток: ${range.toString()}`);
+console.log(`Длина промежутка: ${range.abs}`);
 
-console.log(r1.isEquals(r2))
 
-console.log(r1.toString())
-console.log(r1.representation())
+const innerAngle = Angle.fromDegrees(5);
+const outerAngle = Angle.fromDegrees(180);
+
+console.log(`Входит ли 5° в [350°, 20°): ${range.contains(innerAngle)}`); // true
+console.log(`Входит ли 180° в [350°, 20°): ${range.contains(outerAngle)}`); // false
+
+
+console.log("\n--- 3. Операции со списками промежутков ---");
+
+const r1 = AngleRange.fromNumber(0.1, 0.5, true, true);
+const r2 = AngleRange.fromNumber(0.4, 0.8, true, true);
+
+console.log(`r1: ${r1.toString()}`);
+console.log(`r2: ${r2.toString()}`);
+
+const addedRanges = r1.add(r2);
+console.log(`Результат сложения r1 + r2: ${addedRanges.map(r => r.toString()).join(' , ')}`);
+
+const subbedRanges = r1.sub(r2);
+console.log(`Результат вычитания r1 - r2: ${subbedRanges.map(r => r.toString()).join(' , ')}`);
+
+
+console.log("\n--- 4. Сравнение промежутков ---");
+
+const r3 = AngleRange.fromNumber(0, 1);
+const r4 = AngleRange.fromNumber(2 * PI_VAL, 1 + 2 * PI_VAL);
+
+console.log(`r3: ${r3.toString()}`);
+console.log(`r4: ${r4.toString()}`);
+console.log(`r3 эквивалентен r4: ${r3.isEquals(r4)}`);
