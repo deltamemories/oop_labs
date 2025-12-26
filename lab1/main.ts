@@ -354,45 +354,45 @@ class AngleRange {
 
 const PI_VAL = Math.PI;
 
-console.log("--- 1. Демонстрация работы Angle ---");
+console.log("--- 1. Angle demonstration ---");
 
 const a1 = Angle.fromDegrees(90);
 const a2 = Angle.fromRadians(PI_VAL);
 const a3 = Angle.fromDegrees(450); // 450 = 360 + 90
 
-console.log(`Угол 1: ${a1.toString()} (${a1.degrees}°)`);
-console.log(`Угол 2: ${a2.toString()} (${a2.degrees}°)`);
-console.log(`Угол 3: ${a3.toString()} (${a3.degrees}°)`);
+console.log(`Angle 1: ${a1.toString()} (${a1.degrees}°)`);
+console.log(`Angle 2: ${a2.toString()} (${a2.degrees}°)`);
+console.log(`Angle 3: ${a3.toString()} (${a3.degrees}°)`);
 
-console.log(`Сравнение a1 == a3 (с учетом периода): ${a1.isEquals(a3)}`); // true
-console.log(`Преобразование a1: Float=${a1.getFloat()}, Int=${a1.getInt()}`);
+console.log(`Comparison a1 == a3 (considering period): ${a1.isEquals(a3)}`); // true
+console.log(`Transformation a1: Float=${a1.getFloat()}, Int=${a1.getInt()}`);
 
 const sum = a1.add(a2);
-console.log(`Сложение (90° + 180°): ${sum.degrees}°`);
+console.log(`Addition (90° + 180°): ${sum.degrees}°`);
 
 const mathOp = a1.add(0.5).sub(0.2).mul(2).div(1);
-console.log(`Цепочка операций (числа как радианы): ${mathOp.toString()}`);
+console.log(`Chain of operations (numbers as radians): ${mathOp.toString()}`);
 
 
-console.log("\n--- 2. Демонстрация работы AngleRange ---");
+console.log("\n--- 2. AngleRange demonstration ---");
 
 const start = Angle.fromDegrees(350);
 const end = Angle.fromDegrees(20);
 
 const range = AngleRange.fromAngle(start, end, true, false);
 
-console.log(`Промежуток: ${range.toString()}`);
-console.log(`Длина промежутка: ${range.abs}`);
+console.log(`Interval: ${range.toString()}`);
+console.log(`Interval length: ${range.abs}`);
 
 
 const innerAngle = Angle.fromDegrees(5);
 const outerAngle = Angle.fromDegrees(180);
 
-console.log(`Входит ли 5° в [350°, 20°): ${range.contains(innerAngle)}`); // true
-console.log(`Входит ли 180° в [350°, 20°): ${range.contains(outerAngle)}`); // false
+console.log(`Does 5° fall within [350°, 20°): ${range.contains(innerAngle)}`); // true
+console.log(`Does 180° fall within [350°, 20°): ${range.contains(outerAngle)}`); // false
 
 
-console.log("\n--- 3. Операции со списками промежутков ---");
+console.log("\n--- 3. Operations with interval lists ---");
 
 const r1 = AngleRange.fromNumber(0.1, 0.5, true, true);
 const r2 = AngleRange.fromNumber(0.4, 0.8, true, true);
@@ -401,17 +401,17 @@ console.log(`r1: ${r1.toString()}`);
 console.log(`r2: ${r2.toString()}`);
 
 const addedRanges = r1.add(r2);
-console.log(`Результат сложения r1 + r2: ${addedRanges.map(r => r.toString()).join(' , ')}`);
+console.log(`Result of addition r1 + r2: ${addedRanges.map(r => r.toString()).join(' , ')}`);
 
 const subbedRanges = r1.sub(r2);
-console.log(`Результат вычитания r1 - r2: ${subbedRanges.map(r => r.toString()).join(' , ')}`);
+console.log(`Result of subtraction r1 - r2: ${subbedRanges.map(r => r.toString()).join(' , ')}`);
 
 
-console.log("\n--- 4. Сравнение промежутков ---");
+console.log("\n--- 4. Comparison of intervals ---");
 
 const r3 = AngleRange.fromNumber(0, 1);
 const r4 = AngleRange.fromNumber(2 * PI_VAL, 1 + 2 * PI_VAL);
 
 console.log(`r3: ${r3.toString()}`);
 console.log(`r4: ${r4.toString()}`);
-console.log(`r3 эквивалентен r4: ${r3.isEquals(r4)}`);
+console.log(`r3 is equivalent to r4: ${r3.isEquals(r4)}`);
