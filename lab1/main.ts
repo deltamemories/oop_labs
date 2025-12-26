@@ -354,18 +354,18 @@ class AngleRange {
 
 const PI_VAL = Math.PI;
 
-const tr1 = new AngleRange(Angle.fromRadians(10), Angle.fromRadians(50), true, true)
-const tr2 = new AngleRange(Angle.fromRadians(10), Angle.fromRadians(50))
+const tr1 = new AngleRange.fromAngle(Angle.fromRadians(10), Angle.fromRadians(50), true, true)
+const tr2 = new AngleRange.fromAngle(Angle.fromRadians(10), Angle.fromRadians(50))
 console.log(tr1.sub(tr2))
 
 
-const tr3 = new AngleRange(Angle.fromRadians(20), Angle.fromRadians(40), false, true)
+const tr3 = new AngleRange.fromAngle(Angle.fromRadians(20), Angle.fromRadians(40), false, true)
 
 console.log(tr1.sub(tr3))
 
 
-const tr4 = new AngleRange(Angle.fromRadians(PI_VAL/3), Angle.fromRadians(PI_VAL*5))
-const tr5 = new AngleRange(Angle.fromRadians(PI_VAL/2), Angle.fromRadians(PI_VAL*6))
+const tr4 = new AngleRange.fromAngle(Angle.fromRadians(PI_VAL/3), Angle.fromRadians(PI_VAL*5))
+const tr5 = new AngleRange.fromAngle(Angle.fromRadians(PI_VAL/2), Angle.fromRadians(PI_VAL*6))
 console.log(tr5.contains(tr4))
 
 console.log("--- 1. Angle demonstration ---");
