@@ -258,7 +258,7 @@ var AngleRange = /** @class */ (function () {
             if (accuracyPassed(this.end.radians, other.radians)) {
                 return this._endInclusive;
             }
-            if (this.start < this.end) {
+            if (this.start.radians < this.end.radians) {
                 return other.radians > this.start.radians && other.radians < this.end.radians;
             }
             else {
@@ -312,41 +312,41 @@ var AngleRange = /** @class */ (function () {
     return AngleRange;
 }());
 var PI_VAL = Math.PI;
-console.log("--- 1. Демонстрация работы Angle ---");
+console.log("--- 1. Angle demonstration ---");
 var a1 = Angle.fromDegrees(90);
 var a2 = Angle.fromRadians(PI_VAL);
 var a3 = Angle.fromDegrees(450); // 450 = 360 + 90
-console.log("\u0423\u0433\u043E\u043B 1: ".concat(a1.toString(), " (").concat(a1.degrees, "\u00B0)"));
-console.log("\u0423\u0433\u043E\u043B 2: ".concat(a2.toString(), " (").concat(a2.degrees, "\u00B0)"));
-console.log("\u0423\u0433\u043E\u043B 3: ".concat(a3.toString(), " (").concat(a3.degrees, "\u00B0)"));
-console.log("\u0421\u0440\u0430\u0432\u043D\u0435\u043D\u0438\u0435 a1 == a3 (\u0441 \u0443\u0447\u0435\u0442\u043E\u043C \u043F\u0435\u0440\u0438\u043E\u0434\u0430): ".concat(a1.isEquals(a3))); // true
-console.log("\u041F\u0440\u0435\u043E\u0431\u0440\u0430\u0437\u043E\u0432\u0430\u043D\u0438\u0435 a1: Float=".concat(a1.getFloat(), ", Int=").concat(a1.getInt()));
+console.log("Angle 1: ".concat(a1.toString(), " (").concat(a1.degrees, "\u00B0)"));
+console.log("Angle 2: ".concat(a2.toString(), " (").concat(a2.degrees, "\u00B0)"));
+console.log("Angle 3: ".concat(a3.toString(), " (").concat(a3.degrees, "\u00B0)"));
+console.log("Comparison a1 == a3 (considering period): ".concat(a1.isEquals(a3))); // true
+console.log("Transformation a1: Float=".concat(a1.getFloat(), ", Int=").concat(a1.getInt()));
 var sum = a1.add(a2);
-console.log("\u0421\u043B\u043E\u0436\u0435\u043D\u0438\u0435 (90\u00B0 + 180\u00B0): ".concat(sum.degrees, "\u00B0"));
+console.log("Addition (90\u00B0 + 180\u00B0): ".concat(sum.degrees, "\u00B0"));
 var mathOp = a1.add(0.5).sub(0.2).mul(2).div(1);
-console.log("\u0426\u0435\u043F\u043E\u0447\u043A\u0430 \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u0439 (\u0447\u0438\u0441\u043B\u0430 \u043A\u0430\u043A \u0440\u0430\u0434\u0438\u0430\u043D\u044B): ".concat(mathOp.toString()));
-console.log("\n--- 2. Демонстрация работы AngleRange ---");
+console.log("Chain of operations (numbers as radians): ".concat(mathOp.toString()));
+console.log("\n--- 2. AngleRange demonstration ---");
 var start = Angle.fromDegrees(350);
 var end = Angle.fromDegrees(20);
 var range = AngleRange.fromAngle(start, end, true, false);
-console.log("\u041F\u0440\u043E\u043C\u0435\u0436\u0443\u0442\u043E\u043A: ".concat(range.toString()));
-console.log("\u0414\u043B\u0438\u043D\u0430 \u043F\u0440\u043E\u043C\u0435\u0436\u0443\u0442\u043A\u0430: ".concat(range.abs));
+console.log("Interval: ".concat(range.toString()));
+console.log("Interval length: ".concat(range.abs));
 var innerAngle = Angle.fromDegrees(5);
 var outerAngle = Angle.fromDegrees(180);
-console.log("\u0412\u0445\u043E\u0434\u0438\u0442 \u043B\u0438 5\u00B0 \u0432 [350\u00B0, 20\u00B0): ".concat(range.contains(innerAngle))); // true
-console.log("\u0412\u0445\u043E\u0434\u0438\u0442 \u043B\u0438 180\u00B0 \u0432 [350\u00B0, 20\u00B0): ".concat(range.contains(outerAngle))); // false
-console.log("\n--- 3. Операции со списками промежутков ---");
+console.log("Does 5\u00B0 fall within [350\u00B0, 20\u00B0): ".concat(range.contains(innerAngle))); // true
+console.log("Does 180\u00B0 fall within [350\u00B0, 20\u00B0): ".concat(range.contains(outerAngle))); // false
+console.log("\n--- 3. Operations with interval lists ---");
 var r1 = AngleRange.fromNumber(0.1, 0.5, true, true);
 var r2 = AngleRange.fromNumber(0.4, 0.8, true, true);
 console.log("r1: ".concat(r1.toString()));
 console.log("r2: ".concat(r2.toString()));
 var addedRanges = r1.add(r2);
-console.log("\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0441\u043B\u043E\u0436\u0435\u043D\u0438\u044F r1 + r2: ".concat(addedRanges.map(function (r) { return r.toString(); }).join(' , ')));
+console.log("Result of addition r1 + r2: ".concat(addedRanges.map(function (r) { return r.toString(); }).join(' , ')));
 var subbedRanges = r1.sub(r2);
-console.log("\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0432\u044B\u0447\u0438\u0442\u0430\u043D\u0438\u044F r1 - r2: ".concat(subbedRanges.map(function (r) { return r.toString(); }).join(' , ')));
-console.log("\n--- 4. Сравнение промежутков ---");
+console.log("Result of subtraction r1 - r2: ".concat(subbedRanges.map(function (r) { return r.toString(); }).join(' , ')));
+console.log("\n--- 4. Comparison of intervals ---");
 var r3 = AngleRange.fromNumber(0, 1);
 var r4 = AngleRange.fromNumber(2 * PI_VAL, 1 + 2 * PI_VAL);
 console.log("r3: ".concat(r3.toString()));
 console.log("r4: ".concat(r4.toString()));
-console.log("r3 \u044D\u043A\u0432\u0438\u0432\u0430\u043B\u0435\u043D\u0442\u0435\u043D r4: ".concat(r3.isEquals(r4)));
+console.log("r3 is equivalent to r4: ".concat(r3.isEquals(r4)));
