@@ -312,6 +312,14 @@ var AngleRange = /** @class */ (function () {
     return AngleRange;
 }());
 var PI_VAL = Math.PI;
+var tr1 = AngleRange.fromNumber(10, 50, true, true);
+var tr2 = AngleRange.fromNumber(10, 50);
+console.log(tr1.sub(tr2));
+var tr3 = AngleRange.fromNumber(20, 40, false, true);
+console.log(tr1.sub(tr3));
+var tr4 = AngleRange.fromNumber(PI_VAL / 3, PI_VAL * 5);
+var tr5 = AngleRange.fromNumber(PI_VAL / 2, PI_VAL * 6);
+console.log(tr5.contains(tr4));
 console.log("--- 1. Angle demonstration ---");
 var a1 = Angle.fromDegrees(90);
 var a2 = Angle.fromRadians(PI_VAL);

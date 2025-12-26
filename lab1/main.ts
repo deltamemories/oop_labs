@@ -354,18 +354,18 @@ class AngleRange {
 
 const PI_VAL = Math.PI;
 
-const tr1 = new AngleRange.fromNumber(10, 50, true, true)
-const tr2 = new AngleRange.fromNumber(10, 50)
+const tr1 =  AngleRange.fromNumber(10, 50, true, true)
+const tr2 =  AngleRange.fromNumber(10, 50)
 console.log(tr1.sub(tr2))
 
 
-const tr3 = new AngleRange.fromNumber(20, 40, false, true)
+const tr3 =  AngleRange.fromNumber(20, 40, false, true)
 
 console.log(tr1.sub(tr3))
 
 
-const tr4 = new AngleRange.fromNumber(PI_VAL/3, PI_VAL*5)
-const tr5 = new AngleRange.fromNumber(PI_VAL/2, PI_VAL*6)
+const tr4 =  AngleRange.fromNumber(PI_VAL/3, PI_VAL*5)
+const tr5 =  AngleRange.fromNumber(PI_VAL/2, PI_VAL*6)
 console.log(tr5.contains(tr4))
 
 console.log("--- 1. Angle demonstration ---");
