@@ -286,7 +286,7 @@ class AngleRange {
 				return this._endInclusive;
 			}
 
-			if (this.start < this.end) {
+			if (this.start.radians < this.end.radians) {
 				return other.radians > this.start.radians && other.radians < this.end.radians;
 			} else {
 				return other.radians < this.start.radians && other.radians > this.end.radians;
