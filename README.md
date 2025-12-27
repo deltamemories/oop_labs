@@ -1,8 +1,9 @@
 ## Лабораторные работы по ООП 3 семестр
 
-- 1 wip
+- 1 pass
 - 2 pass
 - 3 pass
-- 4 not started
+- 4 pass
 - 5 pass
-- 6 draft
+- 6 pass
+- 7 pass
